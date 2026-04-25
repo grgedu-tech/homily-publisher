@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homily Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Cormorant Garamond', Georgia, serif; background: #FAF8F4; color: #1C1C1C; min-height: 100vh; }
+
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 3rem; border-bottom: 1px solid #E4DFD6; background: #FAF8F4;
+}
+.brand { font-size: 1.1rem; font-weight: 500; letter-spacing: 0.02em; }
+.brand em { color: #B8872A; font-style: normal; }
+.nav-right { display: flex; gap: 1.5rem; align-items: center; }
+.site-link { font-size: 0.78rem; color: #aaa; letter-spacing: 0.07em; text-transform: uppercase; text-decoration: none; }
+.site-link:hover { color: #B8872A; }
+.logout-btn { background: none; border: none; cursor: pointer; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 0.78rem; color: #ccc; letter-spacing: 0.07em; text-transform: uppercase; }
+.logout-btn:hover { color: #B8872A; }
+
+main { max-width: 700px; margin: 0 auto; padding: 3.5rem 2rem 5rem; }
+
+/* Pin gate */
+.pin-gate { max-width: 320px; margin: 8rem auto; text-align: center; }
+.pin-gate h2 { font-size: 1.6rem; font-weight: 400; margin-bottom: 0.35rem; }
+.pin-gate p { font-size: 0.82rem; color: #aaa; letter-spacing: 0.04em; margin-bottom: 2rem; }
+.pin-input {
+  display: block; width: 160px; margin: 0 auto 1rem;
+  text-align: center; font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.8rem; letter-spacing: 0.4em;
+  padding: 0.5rem; border: 1px solid #DDD8D0; border-radius: 4px; background: #fff;
+}
+.pin-input:focus { outline: none; border-color: #B8872A; }
+.pin-error { font-size: 0.8rem; color: #c0392b; min-height: 1.2em; margin-bottom: 0.75rem; }
+.btn-gold {
+  background: #B8872A; color: #fff; border: none; cursor: pointer;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-size: 0.9rem;
+  letter-spacing: 0.06em; padding: 0.6rem 2rem; border-radius: 4px;
+}
+.btn-gold:hover { background: #a37625; }
+
+/* Form */
+.form-hidden { display: none; }
+
+.section-lbl { font-size: 0.68rem; color: #B8872A; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1.75rem; }
+
+.field-label {
+  display: block; font-size: 0.7rem; color: #aaa;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;
+}
+.date-field {
+  display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1rem;
+  padding: 0.55rem 0.8rem; border: 1px solid #DDD8D0; background: #fff; color: #1C1C1C;
+  border-radius: 4px; margin-bottom: 2.5rem; width: 230px;
+}
+.date-field:focus { outline: none; border-color: #B8872A; }
+
+.lang-block { margin-bottom: 2rem; }
+.lang-block-head {
+  font-size: 0.68rem; color: #B8872A; letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 0.6rem; padding-bottom: 0.5rem; border-bottom: 1px solid #E4DFD6;
+}
+.paste-area {
+  display: block; width: 100%; min-height: 400px;
+  font-family: 'Courier New', Courier, monospace; font-size: 0.88rem; line-height: 1.75;
+  padding: 1.25rem; border: 1px solid #DDD8D0; background: #fff; color: #1C1C1C;
+  resize: vertical; border-radius: 4px;
+}
+.paste-area:focus { outline: none; border-color: #B8872A; }
+.paste-area::placeholder { color: #ccc; }
+
+.form-actions { display: flex; align-items: center; gap: 1.25rem; margin-top: 1.5rem; }
+.status { font-size: 0.88rem; color: #aaa; }
+.status.ok  { color: #B8872A; }
+.status.err { color: #c0392b; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Daily <em>Homily</em> <span style="font-size:.7rem;color:#ccc;letter-spacing:.1em;text-transform:uppercase;margin-left:.5rem">Admin</span></span>
+  <div class="nav-right">
+    <a class="site-link" href="/">← Site</a>
+    <button class="logout-btn" onclick="logout()">Log out</button>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- PIN GATE -->
+  <div id="pin-gate" class="pin-gate">
+    <h2>Admin Access</h2>
+    <p>Enter your PIN to publish</p>
+    <input class="pin-input" type="password" id="pin-field" maxlength="4"
+           inputmode="numeric" placeholder="····"
+           onkeydown="if(event.key==='Enter') checkPin()">
+    <div class="pin-error" id="pin-error"></div>
+    <button class="btn-gold" onclick="checkPin()">Enter</button>
+  </div>
+
+  <!-- PUBLISH FORM -->
+  <div id="pub-form" class="form-hidden">
+    <p class="section-lbl">Publish Homily</p>
+
+    <label class="field-label">Date</label>
+    <input type="date" class="date-field" id="p-date">
+
+    <div class="lang-block">
+      <p class="lang-block-head">English — paste from GPT or VS Code</p>
+      <textarea class="paste-area" id="p-en" placeholder="Paste English homily here…"></textarea>
+    </div>
+
+    <div class="lang-block">
+      <p class="lang-block-head">Español — pega desde GPT o VS Code</p>
+      <textarea class="paste-area" id="p-es" placeholder="Pega aquí la homilía en español…"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-gold" onclick="doPublish()">Publish</button>
+      <span class="status" id="p-status"></span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+var CORRECT_PIN = '1234';
+
+function todayISO() {
+  var n = new Date();
+  return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+}
+
+// Check session
+if (sessionStorage.getItem('homily_auth') === 'yes') {
+  showForm();
+} else {
+  setTimeout(function(){ document.getElementById('pin-field').focus(); }, 80);
+}
+
+function checkPin() {
+  var val = document.getElementById('pin-field').value;
+  if (val === CORRECT_PIN) {
+    sessionStorage.setItem('homily_auth', 'yes');
+    showForm();
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+    document.getElementById('pin-field').value = '';
+    document.getElementById('pin-field').focus();
+  }
+}
+
+function showForm() {
+  document.getElementById('pin-gate').style.display = 'none';
+  document.getElementById('pub-form').classList.remove('form-hidden');
+  document.getElementById('p-date').value = todayISO();
+}
+
+function logout() {
+  sessionStorage.removeItem('homily_auth');
+  window.location.reload();
+}
+
+async function doPublish() {
+  var date = document.getElementById('p-date').value;
+  var en   = document.getElementById('p-en').value.trim();
+  var es   = document.getElementById('p-es').value.trim();
+  var st   = document.getElementById('p-status');
+
+  if (!date)      { alert('Please enter a date.'); return; }
+  if (!en && !es) { alert('Paste at least one homily text.'); return; }
+
+  st.className   = 'status';
+  st.textContent = 'Publishing…';
+
+  try {
+    var res  = await fetch('/.netlify/functions/publish', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ date, en, es })
+    });
+    var data = await res.json();
+
+    if (!res.ok) {
+      st.className   = 'status err';
+      st.textContent = 'Error: ' + (data.error || res.status);
+      return;
+    }
+
+    st.className   = 'status ok';
+    st.textContent = '✓ Published — site rebuilding (≈30 sec)';
+    document.getElementById('p-en').value = '';
+    document.getElementById('p-es').value = '';
+    document.getElementById('p-date').value = todayISO();
+
+  } catch(e) {
+    st.className   = 'status err';
+    st.textContent = 'Network error — check connection';
+  }
+}
+</script>
+</body>
+</html>
